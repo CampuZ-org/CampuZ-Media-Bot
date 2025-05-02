@@ -4,7 +4,7 @@ from schedule import load_schedule
 from pathlib import Path
 
 async def publish_to_telegram(post: dict, token: str) -> str:
-    """Публикует пост или опрос в Telegram."""
+    """Публикует пост, опрос или изображение в Telegram."""
     project_dir = post.get("project_dir", "")
     try:
         url = f"https://api.telegram.org/bot{token}/"
@@ -24,7 +24,17 @@ async def publish_to_telegram(post: dict, token: str) -> str:
                 "is_anonymous": True
             }
             endpoint = "sendPoll"
+        elif post.get("image"):
+            # Отправка изображения
+            data = {
+                "chat_id": chat_id,
+                "photo": post["image"],
+                "caption": f"**{post['title']}**\n{post['text']}\n{post['tags']}",
+                "parse_mode": "Markdown"
+            }
+            endpoint = "sendPhoto"
         else:
+            # Отправка текста
             data = {
                 "chat_id": chat_id,
                 "text": f"**{post['title']}**\n{post['text']}\n{post['tags']}",
