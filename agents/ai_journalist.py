@@ -2,10 +2,11 @@ import yaml
 from pathlib import Path
 from loguru import logger
 from datetime import datetime
+from langchain_openai import ChatOpenAI
 
 
 async def generate_post(task: dict, config: dict, project_dir: str) -> dict:
-    """Генерирует пост."""
+    """Генерирует пост с использованием LLM."""
     try:
         occasion = task["occasion"]
         profile = config.profiles.get(task.get("profile", "default"), {})
@@ -17,15 +18,17 @@ async def generate_post(task: dict, config: dict, project_dir: str) -> dict:
         with open(template_path, "r") as f:
             template = yaml.safe_load(f)["template"]
 
-        # Заглушка для LLM
-        text = template.format(
-            title=occasion.get("Название", ""),
-            room=occasion.get("Зал", ""),
-            start_time=occasion.get("Время начала", occasion.get("Время", ""))
+        # Генерация поста через LLM
+        llm = ChatOpenAI(model="gpt-4o-mini", api_key=config.llm_api_key)
+        prompt = (
+            f"Создай пост для события: {occasion.get('Название', '')}. "
+            f"Шаблон: {template}. "
+            f"Стиль: {profile.get('tone', 'formal')}. "
+            f"Язык: {config.get('language', 'ru')}. "
+            f"Максимум 200 слов. "
+            f"Добавь эмодзи: {profile.get('emojis', False)}."
         )
-        # Добавление эмодзи для casual_host
-        if profile.get("emojis", False):
-            text = f"🎉 {text} 🚀\nПрисоединяйтесь! 😊"
+        text = await llm.apredict(prompt)
 
         tags = " ".join(f"#{t}" for t in occasion.get("Теги", "").split(",") if t)
 

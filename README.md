@@ -143,3 +143,10 @@ ai_journalist.py: Теперь добавляет эмодзи и призыв �
 .env: Пример для хранения API-ключей.
 schedule.xlsx: Описана структура вкладок, чтобы пользователь мог создать файл.
 init.py: Пустые файлы для корректной работы Python-модулей.
+
+
+п56: Реализую поддержку отправки Telegram-опросов в connectors/telegram.py.
+п57: Добавлю CI/CD конфигурацию в .github/workflows/ci.yml для автотестов и сборки Docker.
+п58: Добавлю логирование запросов и ответов LLM в ai_kurator.py, ai_journalist.py, ai_editor.py.
+
+

@@ -3,6 +3,8 @@ from typing import List, Dict
 from loguru import logger
 import sqlite3
 from sentence_transformers import SentenceTransformer, util
+from langchain_openai import ChatOpenAI
+from utils import compute_vector, compare_vectors
 
 model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
 
@@ -23,17 +25,22 @@ async def create_task(events: List[Dict], messages: List[Dict], now: datetime, w
         if window_start <= event_time <= window_end:
             # Векторизация повода
             text = f"{event.get('Название', '')} {event.get('Анонс', event.get('Описание', ''))}"
-            vector = model.encode(text)
+            vector = compute_vector(text)
 
             # Проверка дубликатов
-            cursor.execute("SELECT vector FROM posts WHERE timestamp > ?", [(now - timedelta(hours=24)).isoformat()])
+            cursor.execute("SELECT vector FROM posts WHERE timestamp > ?",
+                           [(now - timedelta(hours=config.vector_lag_hours)).isoformat()])
             existing_vectors = [row[0] for row in cursor.fetchall()]
-            is_duplicate = any(util.cos_sim(vector, ev) > 0.9 for ev in existing_vectors)
+            is_duplicate = any(compare_vectors(vector, ev) > 0.9 for ev in existing_vectors)
 
             if not is_duplicate:
+                # Генерация текстовой постановки через LLM
+                prompt = f"Сформулируй задание для поста: {text}. Язык: {config.get('language', 'ru')}."
+                response = await llm.apredict(prompt)
+
                 task = {
                     "occasion": event,
-                    "text": f"Создать пост для: {text}",
+                    "text": response,
                     "profile": config.profile
                 }
                 tasks.append(task)

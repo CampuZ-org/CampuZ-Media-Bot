@@ -1,13 +1,27 @@
 from datetime import datetime, timedelta
 from loguru import logger
+from langchain_openai import ChatOpenAI
 
 
 async def review_post(post: dict, config: dict, project_dir: str) -> tuple[bool, str]:
-    """Проверяет пост и решает, что с ним делать."""
+    """Проверяет пост с использованием LLM."""
     try:
-        # Заглушка: проверка на наличие текста
         if not post["text"]:
             logger.warning(f"Empty post in {project_dir}")
+            return False, "reject"
+
+        # Проверка через LLM
+        llm = ChatOpenAI(model="gpt-4o-mini", api_key=config.llm_api_key)
+        prompt = (
+            f"Проверь пост: {post['text']}. "
+            f"Соответствует ли он профессиональному тону? "
+            f"Есть ли ошибки или неуместный контент? "
+            f"Верни 'approve' или 'reject'."
+        )
+        decision = await llm.apredict(prompt)
+
+        if decision.lower() != "approve":
+            logger.warning(f"Post rejected in {project_dir}: {post['title']}")
             return False, "reject"
 
         # Проверка интервала
@@ -26,4 +40,3 @@ async def review_post(post: dict, config: dict, project_dir: str) -> tuple[bool,
     except Exception as e:
         logger.error(f"Post review error in {project_dir}: {e}")
         return False, "reject"
-    

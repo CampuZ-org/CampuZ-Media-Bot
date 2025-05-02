@@ -1,0 +1,7 @@
+timezone: "Europe/Moscow"
+llm_provider: "openai"
+llm_api_key: "mock-key"
+telegram_token: "mock-token"
+vector_lag_hours: 24
+occasion_window: [-10, 20]
+language: "ru"

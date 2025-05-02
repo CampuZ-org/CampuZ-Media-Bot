@@ -8,6 +8,22 @@ from agents.ai_journalist import generate_post
 from agents.ai_editor import review_post
 from publisher import publish_post
 from loguru import logger
+import requests
+
+
+async def send_admin_notification(token: str, message: str):
+    """Отправляет уведомление администратору через Telegram."""
+    try:
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        data = {
+            "chat_id": "@AdminChat",  # Заменить на реальный chat_id
+            "text": message
+        }
+        response = requests.post(url, json=data)
+        response.raise_for_status()
+        logger.info("Admin notification sent")
+    except Exception as e:
+        logger.error(f"Admin notification error: {e}")
 
 
 async def run_media_tact(project_dir: str):
@@ -36,5 +52,4 @@ async def run_media_tact(project_dir: str):
                     await publish_post(post, config.telegram_token, project_dir)
     except Exception as e:
         logger.error(f"Media tact error in {project_dir}: {e}")
-        # Уведомление администратору (заглушка)
-        logger.warning("Sending Telegram notification to admin")
+        await send_admin_notification(config.telegram_token, f"Error in {project_dir}: {e}")
