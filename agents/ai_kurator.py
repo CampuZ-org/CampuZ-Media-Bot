@@ -11,11 +11,12 @@ model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
 
 async def create_task(events: List[Dict], messages: List[Dict], now: datetime, window_start: datetime,
                       window_end: datetime, config: dict, project_dir: str) -> List[Dict]:
-    """Формирует задания для журналиста."""
+    """Формирует задания для журналиста с использованием LLM."""
     tasks = []
     db_path = f"/app/projects/{project_dir}/data/posts.db"
+    llm = ChatOpenAI(model="gpt-4o-mini", api_key=config.llm_api_key)
 
-    # Проверка дубликатов
+    # Инициализация базы
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS posts (vector BLOB, timestamp TEXT, post_id TEXT)")
@@ -36,7 +37,9 @@ async def create_task(events: List[Dict], messages: List[Dict], now: datetime, w
             if not is_duplicate:
                 # Генерация текстовой постановки через LLM
                 prompt = f"Сформулируй задание для поста: {text}. Язык: {config.get('language', 'ru')}."
+                logger.debug(f"LLM request (kurator): {prompt}")
                 response = await llm.apredict(prompt)
+                logger.debug(f"LLM response (kurator): {response}")
 
                 task = {
                     "occasion": event,

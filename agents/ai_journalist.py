@@ -28,7 +28,9 @@ async def generate_post(task: dict, config: dict, project_dir: str) -> dict:
             f"Максимум 200 слов. "
             f"Добавь эмодзи: {profile.get('emojis', False)}."
         )
+        logger.debug(f"LLM request (journalist): {prompt}")
         text = await llm.apredict(prompt)
+        logger.debug(f"LLM response (journalist): {text}")
 
         tags = " ".join(f"#{t}" for t in occasion.get("Теги", "").split(",") if t)
 
@@ -38,7 +40,8 @@ async def generate_post(task: dict, config: dict, project_dir: str) -> dict:
             "tags": tags,
             "image": occasion.get("Картинка", ""),
             "poll": occasion.get("Имя опроса", ""),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "project_dir": project_dir
         }
         return post
     except Exception as e:

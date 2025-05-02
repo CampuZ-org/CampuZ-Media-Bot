@@ -18,7 +18,9 @@ async def review_post(post: dict, config: dict, project_dir: str) -> tuple[bool,
             f"Есть ли ошибки или неуместный контент? "
             f"Верни 'approve' или 'reject'."
         )
+        logger.debug(f"LLM request (editor): {prompt}")
         decision = await llm.apredict(prompt)
+        logger.debug(f"LLM response (editor): {decision}")
 
         if decision.lower() != "approve":
             logger.warning(f"Post rejected in {project_dir}: {post['title']}")
