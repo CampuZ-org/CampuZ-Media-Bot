@@ -23,6 +23,10 @@ async def generate_post(task: dict, config: dict, project_dir: str) -> dict:
             room=occasion.get("Зал", ""),
             start_time=occasion.get("Время начала", occasion.get("Время", ""))
         )
+        # Добавление эмодзи для casual_host
+        if profile.get("emojis", False):
+            text = f"🎉 {text} 🚀\nПрисоединяйтесь! 😊"
+
         tags = " ".join(f"#{t}" for t in occasion.get("Теги", "").split(",") if t)
 
         post = {

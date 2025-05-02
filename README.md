@@ -108,6 +108,25 @@ Dockerfile
 docker-compose.yml
 Настройка Docker Compose.
 
+monitor.py
+Реализация метрик Prometheus (п50).
+
+tests/test_config.py
+Тесты для config.py.
+
+tests/test_schedule.py
+Тесты для schedule.py.
+
+tests/test_media_tact.py
+Тесты для media_tact.py.
+
+tests/test_publisher.py
+Тесты для publisher.py.
+
+tests/test_agents.py
+Тесты для ИИ-агентов.
+
+
 Пояснения
 LLM-заглушка: Реальная интеграция с LLM (OpenAI/Grok) требует настройки langchain и API-ключей в .env. Текущий код использует заглушки для генерации текста.
 Telegram API: Реальная публикация требует настройки chat_id и токена в config.yaml. Текущий код отправляет тестовый запрос.
@@ -117,4 +136,10 @@ SQLite: База posts.db создаётся автоматически при �
 
 
 
-
+monitor.py: Добавлены метрики Prometheus для цикла, медиа-такта, постов и ошибок. Сервер запускается на порту 8000.
+ai_journalist.py: Теперь добавляет эмодзи и призыв к действию для профиля casual_host.
+Тесты: Покрывают основные модули (config, schedule, media_tact, publisher, agents). Используют pytest и pytest-asyncio, с mock-данными.
+Документация: api.md описывает метрики, setup.md — инструкции по установке и настройке.
+.env: Пример для хранения API-ключей.
+schedule.xlsx: Описана структура вкладок, чтобы пользователь мог создать файл.
+init.py: Пустые файлы для корректной работы Python-модулей.
