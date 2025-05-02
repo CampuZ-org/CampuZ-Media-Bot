@@ -1,0 +1,8 @@
+media_task: "Краткие посты до 200 слов, профессиональный тон"
+profiles:
+  formal_speaker:
+    tone: "formal"
+    emojis: false
+  casual_host:
+    tone: "informal"
+    emojis: true

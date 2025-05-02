@@ -1,0 +1,1 @@
+template: "Событие: {title} в {room} в {start_time}"
