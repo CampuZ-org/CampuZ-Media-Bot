@@ -3,7 +3,7 @@ from typing import List, Dict
 from loguru import logger
 import sqlite3
 from sentence_transformers import SentenceTransformer, util
-from langchain_openai import ChatOpenAI
+from .llm import get_llm
 from utils import compute_vector, compare_vectors
 
 model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
@@ -14,7 +14,9 @@ async def create_task(events: List[Dict], messages: List[Dict], now: datetime, w
     """Формирует задания для журналиста с использованием LLM."""
     tasks = []
     db_path = f"/app/projects/{project_dir}/data/posts.db"
-    llm = ChatOpenAI(model="gpt-4o-mini", api_key=config.llm_api_key)
+
+    # Инициализация LLM
+    llm = get_llm(config)
 
     # Инициализация базы
     conn = sqlite3.connect(db_path)
@@ -38,12 +40,12 @@ async def create_task(events: List[Dict], messages: List[Dict], now: datetime, w
                 # Генерация текстовой постановки через LLM
                 prompt = f"Сформулируй задание для поста: {text}. Язык: {config.get('language', 'ru')}."
                 logger.debug(f"LLM request (kurator): {prompt}")
-                response = await llm.apredict(prompt)
-                logger.debug(f"LLM response (kurator): {response}")
+                response_text = await llm.apredict(prompt)
+                logger.debug(f"LLM response (kurator): {response_text}")
 
                 task = {
                     "occasion": event,
-                    "text": response,
+                    "text": response_text,
                     "profile": config.profile
                 }
                 tasks.append(task)

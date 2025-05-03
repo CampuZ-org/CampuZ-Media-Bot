@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from loguru import logger
-from langchain_openai import ChatOpenAI
+from pathlib import Path
+from .llm import get_llm
 
 
 async def review_post(post: dict, config: dict, project_dir: str) -> tuple[bool, str]:
@@ -10,8 +11,10 @@ async def review_post(post: dict, config: dict, project_dir: str) -> tuple[bool,
             logger.warning(f"Empty post in {project_dir}")
             return False, "reject"
 
+        # Инициализация LLM
+        llm = get_llm(config)
+
         # Проверка через LLM
-        llm = ChatOpenAI(model="gpt-4o-mini", api_key=config.llm_api_key)
         prompt = (
             f"Проверь пост: {post['text']}. "
             f"Соответствует ли он профессиональному тону? "

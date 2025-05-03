@@ -2,7 +2,7 @@ import yaml
 from pathlib import Path
 from loguru import logger
 from datetime import datetime
-from langchain_openai import ChatOpenAI
+from .llm import get_llm
 
 
 async def generate_post(task: dict, config: dict, project_dir: str) -> dict:
@@ -18,8 +18,10 @@ async def generate_post(task: dict, config: dict, project_dir: str) -> dict:
         with open(template_path, "r") as f:
             template = yaml.safe_load(f)["template"]
 
+        # Инициализация LLM
+        llm = get_llm(config)
+
         # Генерация поста через LLM
-        llm = ChatOpenAI(model="gpt-4o-mini", api_key=config.llm_api_key)
         prompt = (
             f"Создай пост для события: {occasion.get('Название', '')}. "
             f"Шаблон: {template}. "
