@@ -1,6 +1,23 @@
+# Часовой пояс для обработки событий
 timezone: "Europe/Moscow"
-llm_provider: "openai"
+
+# Поставщик LLM: "openai" или "deepseek"
+llm_provider: "deepseek"
+
+# API-ключ для LLM (OpenAI или DeepSeek)
 llm_api_key: "your-api-key"
+
+# Базовый URL для LLM (для DeepSeek; оставьте пустым для OpenAI)
+llm_base_url: "https://api.deepseek.com/v1"
+
+# Токен для Telegram-бота
 telegram_token: "your-telegram-token"
+
+# Период для проверки дубликатов постов (в часах)
 vector_lag_hours: 24
+
+# Окно событий для обработки (в минутах: от -10 до +20)
 occasion_window: [-10, 20]
+
+# Язык для генерации постов
+language: "ru"
